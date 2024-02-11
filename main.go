@@ -34,6 +34,7 @@ func main() {
 	app.Put("/movies/:id", movieHandler.HandleUpdateMovie)
 	app.Delete("/movies/:id", movieHandler.HandleDeleteMovie)
 	app.Get("/movies/:id", movieHandler.HandleGetMovieByID)
+	app.Put("/movies/:id/rate", movieHandler.HandleUpdateMovieRating)
 
 	app.Listen(os.Getenv("LISTEN_ADDR"))
 }

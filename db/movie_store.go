@@ -18,6 +18,7 @@ type MovieStore interface {
 	PutMovie(context.Context, string, types.UpdateMovieParams) error
 	DeleteMovie(context.Context, string) error
 	GetMovieByID(context.Context, string) (*types.Movie, error)
+	UpdateRating(context.Context, string, int) error
 }
 
 type MongoMovieStore struct {
@@ -94,4 +95,18 @@ func (s *MongoMovieStore) GetMovieByID(ctx context.Context, id string) (*types.M
 		return nil, err
 	}
 	return &movie, nil
+}
+
+func (s *MongoMovieStore) UpdateRating(ctx context.Context, id string, rating int) error {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": oid}
+	update := bson.M{"$set": bson.M{"rating": rating}}
+	_, err = s.coll.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+	return nil
 }

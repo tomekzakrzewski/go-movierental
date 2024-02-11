@@ -73,3 +73,23 @@ func (h *MovieHandler) HandleGetMovieByID(c *fiber.Ctx) error {
 	}
 	return c.JSON(movie)
 }
+
+func (h *MovieHandler) HandleUpdateMovieRating(c *fiber.Ctx) error {
+	var (
+		rating  int
+		movieID = c.Params("id")
+	)
+	if err := c.BodyParser(&rating); err != nil {
+		return err
+	}
+
+	// TODO ERROR HANDLING
+	if rating < 0 || rating > 10 {
+		return c.Status(400).JSON(map[string]string{"error": "invalid rating"})
+	}
+	if err := h.store.UpdateRating(c.Context(), movieID, rating); err != nil {
+		return err
+	}
+
+	return c.JSON(map[string]string{"updated": movieID})
+}

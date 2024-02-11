@@ -26,7 +26,7 @@ func (h *MovieHandler) HandlePostMovie(c *fiber.Ctx) error {
 		return c.JSON(validate)
 	}
 	movie := types.NewMovieFromParams(params)
-	insertedHotel, err := h.store.InsertHotel(c.Context(), movie)
+	insertedHotel, err := h.store.InsertMovie(c.Context(), movie)
 	if err != nil {
 		return err
 	}

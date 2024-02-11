@@ -13,11 +13,11 @@ const MongoMovieName = "mongodb"
 const movieColl = "movies"
 
 type MovieStore interface {
-	InsertHotel(context.Context, *types.Movie) (*types.Movie, error)
+	InsertMovie(context.Context, *types.Movie) (*types.Movie, error)
 	GetMovies(context.Context) ([]*types.Movie, error)
+	GetMovieByID(context.Context, string) (*types.Movie, error)
 	PutMovie(context.Context, string, types.UpdateMovieParams) error
 	DeleteMovie(context.Context, string) error
-	GetMovieByID(context.Context, string) (*types.Movie, error)
 	UpdateRating(context.Context, string, int) error
 }
 
@@ -34,7 +34,7 @@ func NewMovieStore(client *mongo.Client) *MongoMovieStore {
 	}
 }
 
-func (s *MongoMovieStore) InsertHotel(ctx context.Context, movie *types.Movie) (*types.Movie, error) {
+func (s *MongoMovieStore) InsertMovie(ctx context.Context, movie *types.Movie) (*types.Movie, error) {
 	res, err := s.coll.InsertOne(ctx, movie)
 	if err != nil {
 		return nil, err

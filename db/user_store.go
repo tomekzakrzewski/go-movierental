@@ -9,10 +9,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const (
+	userColl = "users"
+)
+
 type UserStore interface {
 	InsertUser(context.Context, *types.User) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
 	GetUserByID(context.Context, string) ([]*types.User, error)
+	DeleteUser(context.Context, string) error
 }
 
 type MongoUserStore struct {
@@ -23,8 +28,21 @@ type MongoUserStore struct {
 func NewUserStore(client *mongo.Client) *MongoUserStore {
 	return &MongoUserStore{
 		client: client,
-		coll:   client.Database(MongoDBName).Collection(UserColl),
+		coll:   client.Database(MongoDBName).Collection(userColl),
 	}
+}
+
+func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": oid}
+	_, err = s.coll.DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *MongoUserStore) GetUserByID(ctx context.Context, id string) ([]*types.User, error) {

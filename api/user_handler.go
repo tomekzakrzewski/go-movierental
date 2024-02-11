@@ -54,3 +54,13 @@ func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
 	}
 	return c.JSON(users)
 }
+
+func (h *UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
+	var (
+		id = c.Params("id")
+	)
+	if err := h.store.DeleteUser(c.Context(), id); err != nil {
+		return err
+	}
+	return c.JSON(map[string]string{"deleted": id})
+}

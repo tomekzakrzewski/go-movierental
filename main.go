@@ -33,6 +33,7 @@ func main() {
 	app.Get("/movies", movieHandler.HandleGetMovie)
 	app.Put("/movies/:id", movieHandler.HandleUpdateMovie)
 	app.Delete("/movies/:id", movieHandler.HandleDeleteMovie)
+	app.Get("/movies/:id", movieHandler.HandleGetMovieByID)
 
 	app.Listen(os.Getenv("LISTEN_ADDR"))
 }

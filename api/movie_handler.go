@@ -64,3 +64,12 @@ func (h *MovieHandler) HandleDeleteMovie(c *fiber.Ctx) error {
 	}
 	return c.JSON(map[string]string{"deleted": movieID})
 }
+
+func (h *MovieHandler) HandleGetMovieByID(c *fiber.Ctx) error {
+	movieID := c.Params("id")
+	movie, err := h.store.GetMovieByID(c.Context(), movieID)
+	if err != nil {
+		return err
+	}
+	return c.JSON(movie)
+}

@@ -17,6 +17,7 @@ type MovieStore interface {
 	GetMovies(context.Context) ([]*types.Movie, error)
 	PutMovie(context.Context, string, types.UpdateMovieParams) error
 	DeleteMovie(context.Context, string) error
+	GetMovieByID(context.Context, string) (*types.Movie, error)
 }
 
 type MongoMovieStore struct {
@@ -79,4 +80,18 @@ func (s *MongoMovieStore) DeleteMovie(ctx context.Context, id string) error {
 		return err
 	}
 	return nil
+}
+
+func (s *MongoMovieStore) GetMovieByID(ctx context.Context, id string) (*types.Movie, error) {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	filter := bson.M{"_id": oid}
+	var movie types.Movie
+	err = s.coll.FindOne(ctx, filter).Decode(&movie)
+	if err != nil {
+		return nil, err
+	}
+	return &movie, nil
 }

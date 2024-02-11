@@ -16,6 +16,7 @@ type MovieStore interface {
 	InsertHotel(context.Context, *types.Movie) (*types.Movie, error)
 	GetMovies(context.Context) ([]*types.Movie, error)
 	PutMovie(context.Context, string, types.UpdateMovieParams) error
+	DeleteMovie(context.Context, string) error
 }
 
 type MongoMovieStore struct {
@@ -61,6 +62,19 @@ func (s *MongoMovieStore) PutMovie(ctx context.Context, id string, params types.
 	filter := bson.M{"_id": oid}
 	update := bson.M{"$set": params.ToBSON()}
 	_, err = s.coll.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *MongoMovieStore) DeleteMovie(ctx context.Context, id string) error {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": oid}
+	_, err = s.coll.DeleteOne(ctx, filter)
 	if err != nil {
 		return err
 	}

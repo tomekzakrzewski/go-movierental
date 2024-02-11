@@ -9,9 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const MongoMovieName = "mongodb"
-const movieColl = "movies"
-
 type MovieStore interface {
 	InsertMovie(context.Context, *types.Movie) (*types.Movie, error)
 	GetMovies(context.Context) ([]*types.Movie, error)
@@ -27,10 +24,9 @@ type MongoMovieStore struct {
 }
 
 func NewMovieStore(client *mongo.Client) *MongoMovieStore {
-	dbname := MongoMovieName
 	return &MongoMovieStore{
 		client: client,
-		coll:   client.Database(dbname).Collection(movieColl),
+		coll:   client.Database(MongoDBName).Collection(MovieColl),
 	}
 }
 

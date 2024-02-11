@@ -43,3 +43,14 @@ func (h *UserHandler) HandlePostUser(c *fiber.Ctx) error {
 	}
 	return c.JSON(insertedUser)
 }
+
+func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
+	var (
+		id = c.Params("id")
+	)
+	users, err := h.store.GetUserByID(c.Context(), id)
+	if err != nil {
+		return err
+	}
+	return c.JSON(users)
+}

@@ -9,12 +9,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const dbName = "mongodb"
-const userColl = "users"
-
 type UserStore interface {
 	InsertUser(context.Context, *types.User) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
+	GetUserByID(context.Context, string) ([]*types.User, error)
 }
 
 type MongoUserStore struct {
@@ -23,11 +21,27 @@ type MongoUserStore struct {
 }
 
 func NewUserStore(client *mongo.Client) *MongoUserStore {
-	dbname := dbName
 	return &MongoUserStore{
 		client: client,
-		coll:   client.Database(dbname).Collection(userColl),
+		coll:   client.Database(MongoDBName).Collection(UserColl),
 	}
+}
+
+func (s *MongoUserStore) GetUserByID(ctx context.Context, id string) ([]*types.User, error) {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	res, err := s.coll.Find(ctx, bson.M{"_id": oid})
+	if err != nil {
+		return nil, err
+	}
+	var users []*types.User
+	err = res.All(ctx, &users)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
 func (s *MongoUserStore) InsertUser(ctx context.Context, user *types.User) (*types.User, error) {
@@ -47,6 +61,18 @@ func (s *MongoUserStore) GetUsers(ctx context.Context) ([]*types.User, error) {
 	var users []*types.User
 	err = res.All(ctx, &users)
 	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (s *MongoMovieStore) GetUserByID(ctx context.Context, id string) ([]*types.User, error) {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	var users []*types.User
+	if err := s.coll.FindOne(ctx, bson.M{"_id": oid}).Decode(&users); err != nil {
 		return nil, err
 	}
 	return users, nil

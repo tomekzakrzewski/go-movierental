@@ -13,6 +13,9 @@ const (
 	maxTitleLen  = 200
 	minLengthLen = 1
 	minGenreLen  = 1
+	minRating    = 0
+	maxRating    = 10
+	minYear      = 1888
 )
 
 type Movie struct {
@@ -53,7 +56,7 @@ func Validate(params CreateMovieParams) map[string]string {
 	if params.Length < minLengthLen {
 		errors["lenght"] = fmt.Sprintf("lenght should be at least %d minutes", minLengthLen)
 	}
-	if params.Year > time.Now().Year()+1 || params.Year < 1888 {
+	if params.Year > time.Now().Year()+1 || params.Year < minYear {
 		errors["year"] = fmt.Sprintf("year should be between 1888 and %d", time.Now().Year()+1)
 	}
 	if len(params.Title) < minTitleLen || len(params.Title) > maxTitleLen {
@@ -76,10 +79,10 @@ func (p UpdateMovieParams) ToBSON() bson.M {
 	if p.Length > minLengthLen {
 		m["length"] = p.Length
 	}
-	if p.Year >= 1888 && p.Year <= time.Now().Year()+1 {
+	if p.Year >= minYear && p.Year <= time.Now().Year()+1 {
 		m["year"] = p.Year
 	}
-	if p.Rating > 0 && p.Rating < 11 {
+	if p.Rating > minRating && p.Rating <= maxRating {
 		m["rating"] = p.Rating
 	}
 	return m

@@ -42,6 +42,7 @@ func main() {
 	app.Post("/users", userHandler.HandlePostUser)
 	app.Get("/users", userHandler.HandleGetUsers)
 	app.Get("/users/:id", userHandler.HandleGetUser)
+	app.Delete("/users/:id", userHandler.HandleDeleteUser)
 
 	app.Listen(os.Getenv("LISTEN_ADDR"))
 }

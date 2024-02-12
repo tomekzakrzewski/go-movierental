@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tomekzakrzewski/go-movierental/db"
@@ -112,6 +113,15 @@ func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 	if !ok {
 		fmt.Println("here")
 		return c.Status(401).JSON(map[string]string{"error": "unauthorized"})
+	}
+
+	if err := h.rentStore.CheckRent(c.Context(), types.CheckRentParams{
+		UserID:  user.ID,
+		MovieID: movieID,
+		From:    time.Now(),
+		To:      time.Now().Add(time.Hour * 24),
+	}); err != nil {
+		return err
 	}
 	params := types.CreateRentParams{
 		UserID:  user.ID,

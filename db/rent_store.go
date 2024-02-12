@@ -2,6 +2,8 @@ package db
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/tomekzakrzewski/go-movierental/types"
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,6 +18,7 @@ const (
 type RentStore interface {
 	InsertRent(context.Context, *types.Rent) (*types.Rent, error)
 	GetRents(context.Context) ([]*types.Rent, error)
+	CheckRent(context.Context, types.CheckRentParams) error
 }
 
 type MongoRentStore struct {
@@ -51,4 +54,35 @@ func (s *MongoRentStore) GetRents(ctx context.Context) ([]*types.Rent, error) {
 		return nil, err
 	}
 	return rents, nil
+}
+
+func (s *MongoRentStore) CheckRent(ctx context.Context, params types.CheckRentParams) error {
+	filter := bson.D{
+		{"movieID", params.MovieID},
+		{"userID", params.UserID},
+		{"$or", bson.A{
+			bson.D{
+				{Key: "to", Value: bson.D{
+					{Key: "$gt", Value: params.From},
+					{Key: "$lt", Value: params.To},
+				}},
+			},
+			bson.D{
+				{Key: "to", Value: bson.D{
+					{Key: "$gt", Value: params.From.Add(-24 * time.Hour)},
+					{Key: "$lt", Value: params.To},
+				}},
+			},
+		}},
+	}
+
+	res, err := s.coll.CountDocuments(ctx, filter)
+	fmt.Println(res)
+	if err != nil {
+		return err
+	}
+	if res > 0 {
+		return fmt.Errorf("already rented")
+	}
+	return nil
 }

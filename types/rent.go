@@ -14,6 +14,13 @@ type Rent struct {
 	To      time.Time          `bson:"to" json:"to"`
 }
 
+type CheckRentParams struct {
+	UserID  primitive.ObjectID `bson:"userID" json:"userID"`
+	MovieID primitive.ObjectID `bson:"movieID" json:"movieID"`
+	From    time.Time          `bson:"from" json:"from"`
+	To      time.Time          `bson:"to" json:"to"`
+}
+
 type CreateRentParams struct {
 	UserID  primitive.ObjectID `bson:"userID" json:"userID"`
 	MovieID primitive.ObjectID `json:"movieID"`

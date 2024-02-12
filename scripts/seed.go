@@ -39,4 +39,16 @@ func main() {
 
 	user := fixtures.AddUser(store, "tomek", "zak", false)
 	fmt.Println("tomek ->", api.CreateTokenFromUser(user))
+	user = fixtures.AddUser(store, "zuzia", "poz", false)
+	fmt.Println("zuzia ->", api.CreateTokenFromUser(user))
+	user = fixtures.AddUser(store, "admin", "admin", true)
+	fmt.Println("admin ->", api.CreateTokenFromUser(user))
+
+	fixtures.AddMovie(store, "The Matrix", []string{"Action", "Sci-Fi"}, 120, 1999)
+	fixtures.AddMovie(store, "Titanic", []string{"Drama", "Romance"}, 194, 1999)
+	fixtures.AddMovie(store, "Star Wars: The Force Awakens", []string{"Action", "Sci-Fi"}, 136, 2015)
+	fixtures.AddMovie(store, "The Godfather", []string{"Drama"}, 175, 1972)
+	fixtures.AddMovie(store, "The Shawshank Redemption", []string{"Drama"}, 142, 1994)
+	fixtures.AddMovie(store, "Schindler's List", []string{"Biography", "Drama", "History"}, 195, 1993)
+
 }

@@ -24,8 +24,8 @@ func main() {
 	var (
 		rentStore    = db.NewRentStore(client)
 		movieStore   = db.NewMovieStore(client)
-		movieHandler = api.NewMovieHandler(movieStore, rentStore)
 		userStore    = db.NewUserStore(client)
+		movieHandler = api.NewMovieHandler(movieStore, rentStore)
 		userHandler  = api.NewUserHandler(userStore)
 		rentHandler  = api.NewRentHandler(rentStore)
 		authHandler  = api.NewAuthHandler(userStore)
@@ -45,6 +45,7 @@ func main() {
 	apiv1.Delete("/movies/:id", movieHandler.HandleDeleteMovie)
 	apiv1.Get("/movies/:id", movieHandler.HandleGetMovieByID)
 	apiv1.Put("/movies/:id/rate", movieHandler.HandleUpdateMovieRating)
+	apiv1.Post("/movies/:id/rent", movieHandler.HandleRentMovie)
 	// user handlers
 	apiv1.Post("/users", userHandler.HandlePostUser)
 	apiv1.Get("/users", userHandler.HandleGetUsers)
@@ -52,9 +53,7 @@ func main() {
 	apiv1.Delete("/users/:id", userHandler.HandleDeleteUser)
 
 	//rent handlers
-	apiv1.Post("/rents", rentHandler.HandlePostRent)
 	apiv1.Get("/rents", rentHandler.HandleGetRents)
-	apiv1.Post("/rents/:id/movie", movieHandler.HandleRentMovie)
 
 	app.Listen(os.Getenv("LISTEN_ADDR"))
 }

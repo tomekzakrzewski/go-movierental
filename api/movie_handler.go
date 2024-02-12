@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/tomekzakrzewski/go-movierental/db"
 	"github.com/tomekzakrzewski/go-movierental/types"
@@ -78,19 +80,22 @@ func (h *MovieHandler) HandleGetMovieByID(c *fiber.Ctx) error {
 }
 
 func (h *MovieHandler) HandleUpdateMovieRating(c *fiber.Ctx) error {
+	type Rating struct {
+		Rating int `json:"rating"`
+	}
 	var (
-		rating  int
 		movieID = c.Params("id")
+		rating  Rating
 	)
 	if err := c.BodyParser(&rating); err != nil {
 		return err
 	}
 
 	// TODO ERROR HANDLING
-	if rating < 0 || rating > 10 {
+	if rating.Rating < 0 || rating.Rating > 10 {
 		return c.Status(400).JSON(map[string]string{"error": "invalid rating"})
 	}
-	if err := h.store.UpdateRating(c.Context(), movieID, rating); err != nil {
+	if err := h.store.UpdateRating(c.Context(), movieID, rating.Rating); err != nil {
 		return err
 	}
 
@@ -98,27 +103,21 @@ func (h *MovieHandler) HandleUpdateMovieRating(c *fiber.Ctx) error {
 }
 
 func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
-	var (
-		params types.CreateRentParams
-	)
 	// TODO ERROR HANDLING
-	if err := c.BodyParser(&params); err != nil {
-		return err
-	}
-	if err := params.Validate(); len(err) > 0 {
-		return c.JSON(err)
-	}
 	movieID, err := primitive.ObjectIDFromHex(c.Params("id"))
 	if err != nil {
 		return err
 	}
-	user, ok := c.Context().Value("user").(types.User)
+	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {
+		fmt.Println("here")
 		return c.Status(401).JSON(map[string]string{"error": "unauthorized"})
 	}
+	params := types.CreateRentParams{
+		UserID:  user.ID,
+		MovieID: movieID,
+	}
 	rent := types.NewRentFromParams(params)
-	rent.UserID = user.ID
-	rent.MovieID = movieID
 	insertedRent, err := h.rentStore.InsertRent(c.Context(), rent)
 	if err != nil {
 		return err

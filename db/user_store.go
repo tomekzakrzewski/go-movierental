@@ -17,8 +17,8 @@ type UserStore interface {
 	InsertUser(context.Context, *types.User) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
 	GetUserByID(context.Context, string) (*types.User, error)
-	DeleteUser(context.Context, string) error
 	GetUserByEmail(context.Context, string) (*types.User, error)
+	DeleteUser(context.Context, string) error
 }
 
 type MongoUserStore struct {
@@ -31,39 +31,6 @@ func NewUserStore(client *mongo.Client) *MongoUserStore {
 		client: client,
 		coll:   client.Database(MongoDBName).Collection(userColl),
 	}
-}
-
-func (s *MongoUserStore) GetUserByEmail(ctx context.Context, email string) (*types.User, error) {
-	var user types.User
-	if err := s.coll.FindOne(ctx, bson.M{"email": email}).Decode(&user); err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
-
-func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
-	oid, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return err
-	}
-	filter := bson.M{"_id": oid}
-	_, err = s.coll.DeleteOne(ctx, filter)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *MongoUserStore) GetUserByID(ctx context.Context, id string) (*types.User, error) {
-	oid, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
-	var user types.User
-	if err := s.coll.FindOne(ctx, bson.M{"_id": oid}).Decode(&user); err != nil {
-		return nil, err
-	}
-	return &user, nil
 }
 
 func (s *MongoUserStore) InsertUser(ctx context.Context, user *types.User) (*types.User, error) {
@@ -87,15 +54,34 @@ func (s *MongoUserStore) GetUsers(ctx context.Context) ([]*types.User, error) {
 	}
 	return users, nil
 }
-
-func (s *MongoMovieStore) GetUserByID(ctx context.Context, id string) ([]*types.User, error) {
+func (s *MongoUserStore) GetUserByID(ctx context.Context, id string) (*types.User, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
-	var users []*types.User
-	if err := s.coll.FindOne(ctx, bson.M{"_id": oid}).Decode(&users); err != nil {
+	var user types.User
+	if err := s.coll.FindOne(ctx, bson.M{"_id": oid}).Decode(&user); err != nil {
 		return nil, err
 	}
-	return users, nil
+	return &user, nil
+}
+func (s *MongoUserStore) GetUserByEmail(ctx context.Context, email string) (*types.User, error) {
+	var user types.User
+	if err := s.coll.FindOne(ctx, bson.M{"email": email}).Decode(&user); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": oid}
+	_, err = s.coll.DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+	return nil
 }

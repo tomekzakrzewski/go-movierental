@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/tomekzakrzewski/go-movierental/db"
-	"github.com/tomekzakrzewski/go-movierental/types"
 )
 
 type RentHandler struct {
@@ -22,22 +21,4 @@ func (h *RentHandler) HandleGetRents(c *fiber.Ctx) error {
 		return err
 	}
 	return c.JSON(rents)
-}
-
-func (h *RentHandler) HandlePostRent(c *fiber.Ctx) error {
-	// TODO ERROR HANDLING
-	var params types.CreateRentParams
-
-	if err := c.BodyParser(&params); err != nil {
-		return err
-	}
-	if errors := params.Validate(); len(errors) > 0 {
-		return c.JSON(errors)
-	}
-	rent := types.NewRentFromParams(params)
-	insertedRent, err := h.store.InsertRent(c.Context(), rent)
-	if err != nil {
-		return err
-	}
-	return c.JSON(insertedRent)
 }

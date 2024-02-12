@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -18,18 +17,18 @@ type Rent struct {
 type CreateRentParams struct {
 	UserID  primitive.ObjectID `bson:"userID" json:"userID"`
 	MovieID primitive.ObjectID `json:"movieID"`
-	From    time.Time          `json:"from"`
 }
 
 func NewRentFromParams(params CreateRentParams) *Rent {
 	return &Rent{
 		UserID:  params.UserID,
 		MovieID: params.MovieID,
-		From:    params.From,
-		To:      params.From.Add(time.Hour * 24),
+		From:    time.Now(),
+		To:      time.Now().Add(time.Hour * 24),
 	}
 }
 
+/*
 func (params CreateRentParams) Validate() map[string]string {
 	errors := map[string]string{}
 
@@ -38,3 +37,4 @@ func (params CreateRentParams) Validate() map[string]string {
 	}
 	return errors
 }
+*/

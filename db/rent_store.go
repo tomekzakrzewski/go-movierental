@@ -19,6 +19,7 @@ type RentStore interface {
 	InsertRent(context.Context, *types.Rent) (*types.Rent, error)
 	GetRents(context.Context) ([]*types.Rent, error)
 	CheckRent(context.Context, types.CheckRentParams) error
+	GetRentsByUser(context.Context, string) ([]*types.Rent, error)
 }
 
 type MongoRentStore struct {
@@ -31,6 +32,23 @@ func NewRentStore(client *mongo.Client) *MongoRentStore {
 		client: client,
 		coll:   client.Database(MongoDBName).Collection(rentColl),
 	}
+}
+
+func (s *MongoRentStore) GetRentsByUser(ctx context.Context, userID string) ([]*types.Rent, error) {
+	oid, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return nil, err
+	}
+	res, err := s.coll.Find(ctx, bson.M{"userID": oid})
+	if err != nil {
+		return nil, err
+	}
+	var rents []*types.Rent
+	err = res.All(ctx, &rents)
+	if err != nil {
+		return nil, err
+	}
+	return rents, nil
 }
 
 func (s *MongoRentStore) InsertRent(ctx context.Context, rent *types.Rent) (*types.Rent, error) {

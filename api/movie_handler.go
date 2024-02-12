@@ -134,3 +134,16 @@ func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 	}
 	return c.JSON(insertedRent)
 }
+
+func (h *MovieHandler) HandleGetRentedMovies(c *fiber.Ctx) error {
+	user, ok := c.Context().Value("user").(*types.User)
+	if !ok {
+		return c.Status(401).JSON(map[string]string{"error": "unauthorized"})
+	}
+
+	movies, err := h.rentStore.GetRentsByUser(c.Context(), user.ID.Hex())
+	if err != nil {
+		return err
+	}
+	return c.JSON(movies)
+}

@@ -46,6 +46,7 @@ func main() {
 	apiv1.Get("/movies/:id", movieHandler.HandleGetMovieByID)
 	apiv1.Put("/movies/:id/rate", movieHandler.HandleUpdateMovieRating)
 	apiv1.Post("/movies/:id/rent", movieHandler.HandleRentMovie)
+	apiv1.Post("/movies/rented", movieHandler.HandleGetRentedMovies)
 	// user handlers
 	apiv1.Post("/users", userHandler.HandlePostUser)
 	apiv1.Get("/users", userHandler.HandleGetUsers)

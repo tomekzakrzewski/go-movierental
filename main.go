@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-
 	mongoEndpoint := os.Getenv("MONGO_DB_URL")
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoEndpoint))
 	if err != nil {
@@ -23,26 +22,39 @@ func main() {
 
 	// init
 	var (
+		rentStore    = db.NewRentStore(client)
 		movieStore   = db.NewMovieStore(client)
-		movieHandler = api.NewMovieHandler(movieStore)
-		app          = fiber.New()
+		movieHandler = api.NewMovieHandler(movieStore, rentStore)
 		userStore    = db.NewUserStore(client)
 		userHandler  = api.NewUserHandler(userStore)
+		rentHandler  = api.NewRentHandler(rentStore)
+		authHandler  = api.NewAuthHandler(userStore)
+		app          = fiber.New()
+		auth         = app.Group("/api")
+		apiv1        = app.Group("/api/v1", api.JWTAuthentication(userStore))
 	)
 
-	// movie handlers
-	app.Post("/movies", movieHandler.HandlePostMovie)
-	app.Get("/movies", movieHandler.HandleGetMovie)
-	app.Put("/movies/:id", movieHandler.HandleUpdateMovie)
-	app.Delete("/movies/:id", movieHandler.HandleDeleteMovie)
-	app.Get("/movies/:id", movieHandler.HandleGetMovieByID)
-	app.Put("/movies/:id/rate", movieHandler.HandleUpdateMovieRating)
+	// USER ONLY RATE, RENT, GET MOVIES, POST AUTH
+	// auth handler
+	auth.Post("/auth", authHandler.HandleAuthenticate)
 
+	// movie handlers
+	apiv1.Post("/movies", movieHandler.HandlePostMovie)
+	apiv1.Get("/movies", movieHandler.HandleGetMovie)
+	apiv1.Put("/movies/:id", movieHandler.HandleUpdateMovie)
+	apiv1.Delete("/movies/:id", movieHandler.HandleDeleteMovie)
+	apiv1.Get("/movies/:id", movieHandler.HandleGetMovieByID)
+	apiv1.Put("/movies/:id/rate", movieHandler.HandleUpdateMovieRating)
 	// user handlers
-	app.Post("/users", userHandler.HandlePostUser)
-	app.Get("/users", userHandler.HandleGetUsers)
-	app.Get("/users/:id", userHandler.HandleGetUser)
-	app.Delete("/users/:id", userHandler.HandleDeleteUser)
+	apiv1.Post("/users", userHandler.HandlePostUser)
+	apiv1.Get("/users", userHandler.HandleGetUsers)
+	apiv1.Get("/users/:id", userHandler.HandleGetUser)
+	apiv1.Delete("/users/:id", userHandler.HandleDeleteUser)
+
+	//rent handlers
+	apiv1.Post("/rents", rentHandler.HandlePostRent)
+	apiv1.Get("/rents", rentHandler.HandleGetRents)
+	apiv1.Post("/rents/:id/movie", movieHandler.HandleRentMovie)
 
 	app.Listen(os.Getenv("LISTEN_ADDR"))
 }

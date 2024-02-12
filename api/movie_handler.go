@@ -4,15 +4,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/tomekzakrzewski/go-movierental/db"
 	"github.com/tomekzakrzewski/go-movierental/types"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type MovieHandler struct {
-	store db.MovieStore
+	store     db.MovieStore
+	rentStore db.RentStore
 }
 
-func NewMovieHandler(store db.MovieStore) *MovieHandler {
+func NewMovieHandler(store db.MovieStore, rentStore db.RentStore) *MovieHandler {
 	return &MovieHandler{
-		store: store,
+		store:     store,
+		rentStore: rentStore,
 	}
 }
 
@@ -92,4 +95,33 @@ func (h *MovieHandler) HandleUpdateMovieRating(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(map[string]string{"updated": movieID})
+}
+
+func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
+	var (
+		params types.CreateRentParams
+	)
+	// TODO ERROR HANDLING
+	if err := c.BodyParser(&params); err != nil {
+		return err
+	}
+	if err := params.Validate(); len(err) > 0 {
+		return c.JSON(err)
+	}
+	movieID, err := primitive.ObjectIDFromHex(c.Params("id"))
+	if err != nil {
+		return err
+	}
+	user, ok := c.Context().Value("user").(types.User)
+	if !ok {
+		return c.Status(401).JSON(map[string]string{"error": "unauthorized"})
+	}
+	rent := types.NewRentFromParams(params)
+	rent.UserID = user.ID
+	rent.MovieID = movieID
+	insertedRent, err := h.rentStore.InsertRent(c.Context(), rent)
+	if err != nil {
+		return err
+	}
+	return c.JSON(insertedRent)
 }

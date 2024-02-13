@@ -1,6 +1,8 @@
 --- ADD ---
 sorting movies by rating, alphabetical, year
 pagination
+error handling
+admin
 
 !user can see their rented movies
 get movies rented by user

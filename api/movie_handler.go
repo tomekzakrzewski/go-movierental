@@ -138,7 +138,7 @@ func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 func (h *MovieHandler) HandleGetRentedMovies(c *fiber.Ctx) error {
 	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {
-		return c.Status(401).JSON(map[string]string{"error": "unauthorized"})
+		return fmt.Errorf("err")
 	}
 
 	movies, err := h.rentStore.GetRentsByUser(c.Context(), user.ID.Hex())

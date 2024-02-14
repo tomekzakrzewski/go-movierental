@@ -43,6 +43,10 @@ func NewMovieFromParams(params CreateMovieParams) *Movie {
 	}
 }
 
+type UpdateMovieRating struct {
+	Rating int `json:"rating"`
+}
+
 type UpdateMovieParams struct {
 	Title  string   `json:"title"`
 	Genre  []string `json:"genre"`

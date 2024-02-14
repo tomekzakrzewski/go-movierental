@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -66,7 +67,7 @@ func (h *MovieHandler) HandleUpdateMovie(c *fiber.Ctx) error {
 func (h *MovieHandler) HandleDeleteMovie(c *fiber.Ctx) error {
 	movieID := c.Params("id")
 	if err := h.store.DeleteMovie(c.Context(), movieID); err != nil {
-		return err
+		return ErrInvalidID()
 	}
 	return c.JSON(map[string]string{"deleted": movieID})
 }
@@ -75,7 +76,7 @@ func (h *MovieHandler) HandleGetMovieByID(c *fiber.Ctx) error {
 	movieID := c.Params("id")
 	movie, err := h.store.GetMovieByID(c.Context(), movieID)
 	if err != nil {
-		return err
+		return ErrInvalidID()
 	}
 	return c.JSON(movie)
 }
@@ -84,6 +85,7 @@ func (h *MovieHandler) HandleUpdateMovieRating(c *fiber.Ctx) error {
 	type Rating struct {
 		Rating int `json:"rating"`
 	}
+
 	var (
 		movieID = c.Params("id")
 		rating  Rating
@@ -94,7 +96,7 @@ func (h *MovieHandler) HandleUpdateMovieRating(c *fiber.Ctx) error {
 
 	// TODO ERROR HANDLING
 	if rating.Rating < 0 || rating.Rating > 10 {
-		return c.Status(400).JSON(map[string]string{"error": "invalid rating"})
+		return ErrBadRequest()
 	}
 	if err := h.store.UpdateRating(c.Context(), movieID, rating.Rating); err != nil {
 		return err
@@ -112,7 +114,7 @@ func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {
 		fmt.Println("here")
-		return c.Status(401).JSON(map[string]string{"error": "unauthorized"})
+		return ErrUnAuthorized()
 	}
 
 	if err := h.rentStore.CheckRent(c.Context(), types.CheckRentParams{
@@ -121,7 +123,10 @@ func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 		From:    time.Now(),
 		To:      time.Now().Add(time.Hour * 24),
 	}); err != nil {
-		return err
+		return c.Status(http.StatusBadRequest).JSON(genericResp{
+			Type: "error",
+			Msg:  fmt.Sprintf("Movie already rented, id: %s", movieID),
+		})
 	}
 	params := types.CreateRentParams{
 		UserID:  user.ID,
@@ -138,7 +143,7 @@ func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 func (h *MovieHandler) HandleGetRentedMovies(c *fiber.Ctx) error {
 	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {
-		return fmt.Errorf("err")
+		return ErrResourceNotFound("rented movies")
 	}
 
 	movies, err := h.rentStore.GetRentsByUser(c.Context(), user.ID.Hex())

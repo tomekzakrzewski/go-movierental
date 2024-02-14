@@ -13,6 +13,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var config = fiber.Config{
+	ErrorHandler: api.ErrorHandler,
+}
+
 func main() {
 	mongoEndpoint := os.Getenv("MONGO_DB_URL")
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoEndpoint))
@@ -29,9 +33,10 @@ func main() {
 		userHandler  = api.NewUserHandler(userStore)
 		rentHandler  = api.NewRentHandler(rentStore)
 		authHandler  = api.NewAuthHandler(userStore)
-		app          = fiber.New()
+		app          = fiber.New(config)
 		auth         = app.Group("/api")
 		apiv1        = app.Group("/api/v1", api.JWTAuthentication(userStore))
+		admin        = apiv1.Group("/admin", api.AdminAuth)
 	)
 
 	// USER ONLY RATE, RENT, GET MOVIES, POST AUTH
@@ -39,22 +44,22 @@ func main() {
 	auth.Post("/auth", authHandler.HandleAuthenticate)
 
 	// movie handlers
-	apiv1.Post("/movies", movieHandler.HandlePostMovie)
-	apiv1.Get("/movies", movieHandler.HandleGetMovie)
-	apiv1.Put("/movies/:id", movieHandler.HandleUpdateMovie)
-	apiv1.Delete("/movies/:id", movieHandler.HandleDeleteMovie)
 	apiv1.Get("/movies/:id", movieHandler.HandleGetMovieByID)
 	apiv1.Put("/movies/:id/rate", movieHandler.HandleUpdateMovieRating)
 	apiv1.Post("/movies/:id/rent", movieHandler.HandleRentMovie)
 	apiv1.Post("/movies/rented", movieHandler.HandleGetRentedMovies)
+	apiv1.Get("/movies", movieHandler.HandleGetMovie)
+	admin.Post("/movies", movieHandler.HandlePostMovie)
+	admin.Put("/movies/:id", movieHandler.HandleUpdateMovie)
+	admin.Delete("/movies/:id", movieHandler.HandleDeleteMovie)
 	// user handlers
-	apiv1.Post("/users", userHandler.HandlePostUser)
-	apiv1.Get("/users", userHandler.HandleGetUsers)
 	apiv1.Get("/users/:id", userHandler.HandleGetUser)
-	apiv1.Delete("/users/:id", userHandler.HandleDeleteUser)
+	admin.Post("/users", userHandler.HandlePostUser)
+	admin.Get("/users", userHandler.HandleGetUsers)
+	admin.Delete("/users/:id", userHandler.HandleDeleteUser)
 
 	//rent handlers
-	apiv1.Get("/rents", rentHandler.HandleGetRents)
+	admin.Get("/rents", rentHandler.HandleGetRents)
 
 	app.Listen(os.Getenv("LISTEN_ADDR"))
 }

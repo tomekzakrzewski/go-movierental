@@ -12,14 +12,14 @@ import (
 )
 
 type MovieHandler struct {
-	store     db.MovieStore
-	rentStore db.RentStore
+	store *db.Store
+	//store     db.MovieStore
+	//rentStore db.RentStore
 }
 
-func NewMovieHandler(store db.MovieStore, rentStore db.RentStore) *MovieHandler {
+func NewMovieHandler(store *db.Store) *MovieHandler {
 	return &MovieHandler{
-		store:     store,
-		rentStore: rentStore,
+		store: store,
 	}
 }
 
@@ -33,7 +33,7 @@ func (h *MovieHandler) HandlePostMovie(c *fiber.Ctx) error {
 		return c.JSON(validate)
 	}
 	movie := types.NewMovieFromParams(params)
-	insertedHotel, err := h.store.InsertMovie(c.Context(), movie)
+	insertedHotel, err := h.store.Movie.InsertMovie(c.Context(), movie)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (h *MovieHandler) HandleGetMovies(c *fiber.Ctx) error {
 	filter := map[string]any{
 		"rating": params.Rating,
 	}
-	movies, err := h.store.GetMovies(c.Context(), filter, &params.Pagination)
+	movies, err := h.store.Movie.GetMovies(c.Context(), filter, &params.Pagination)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (h *MovieHandler) HandleUpdateMovie(c *fiber.Ctx) error {
 	if err := c.BodyParser(&params); err != nil {
 		return err
 	}
-	if err := h.store.PutMovie(c.Context(), movieID, params); err != nil {
+	if err := h.store.Movie.PutMovie(c.Context(), movieID, params); err != nil {
 		return err
 	}
 
@@ -90,7 +90,7 @@ func (h *MovieHandler) HandleUpdateMovie(c *fiber.Ctx) error {
 
 func (h *MovieHandler) HandleDeleteMovie(c *fiber.Ctx) error {
 	movieID := c.Params("id")
-	if err := h.store.DeleteMovie(c.Context(), movieID); err != nil {
+	if err := h.store.Movie.DeleteMovie(c.Context(), movieID); err != nil {
 		return ErrInvalidID()
 	}
 	return c.JSON(map[string]string{"deleted": movieID})
@@ -98,7 +98,7 @@ func (h *MovieHandler) HandleDeleteMovie(c *fiber.Ctx) error {
 
 func (h *MovieHandler) HandleGetMovieByID(c *fiber.Ctx) error {
 	movieID := c.Params("id")
-	movie, err := h.store.GetMovieByID(c.Context(), movieID)
+	movie, err := h.store.Movie.GetMovieByID(c.Context(), movieID)
 	if err != nil {
 		return ErrInvalidID()
 	}
@@ -122,7 +122,7 @@ func (h *MovieHandler) HandleUpdateMovieRating(c *fiber.Ctx) error {
 	if rating.Rating < 0 || rating.Rating > 10 {
 		return ErrBadRequest()
 	}
-	if err := h.store.UpdateRating(c.Context(), movieID, rating.Rating); err != nil {
+	if err := h.store.Movie.UpdateRating(c.Context(), movieID, rating.Rating); err != nil {
 		return err
 	}
 
@@ -141,7 +141,7 @@ func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 		return ErrUnAuthorized()
 	}
 
-	if err := h.rentStore.CheckRent(c.Context(), types.CheckRentParams{
+	if err := h.store.Rent.CheckRent(c.Context(), types.CheckRentParams{
 		UserID:  user.ID,
 		MovieID: movieID,
 		From:    time.Now(),
@@ -157,7 +157,7 @@ func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 		MovieID: movieID,
 	}
 	rent := types.NewRentFromParams(params)
-	insertedRent, err := h.rentStore.InsertRent(c.Context(), rent)
+	insertedRent, err := h.store.Rent.InsertRent(c.Context(), rent)
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func (h *MovieHandler) HandleGetRentedMovies(c *fiber.Ctx) error {
 		return ErrResourceNotFound("rented movies")
 	}
 
-	movies, err := h.rentStore.GetRentsByUser(c.Context(), user.ID.Hex())
+	movies, err := h.store.Rent.GetRentsByUser(c.Context(), user.ID.Hex())
 	if err != nil {
 		return err
 	}

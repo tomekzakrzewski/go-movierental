@@ -26,10 +26,14 @@ func main() {
 
 	// init
 	var (
+		store = &db.Store{
+			User:  db.NewUserStore(client),
+			Movie: db.NewMovieStore(client),
+			Rent:  db.NewRentStore(client),
+		}
 		rentStore    = db.NewRentStore(client)
-		movieStore   = db.NewMovieStore(client)
 		userStore    = db.NewUserStore(client)
-		movieHandler = api.NewMovieHandler(movieStore, rentStore)
+		movieHandler = api.NewMovieHandler(store)
 		userHandler  = api.NewUserHandler(userStore)
 		rentHandler  = api.NewRentHandler(rentStore)
 		authHandler  = api.NewAuthHandler(userStore)

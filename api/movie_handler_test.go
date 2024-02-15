@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/tomekzakrzewski/go-movierental/db/fixtures"
 	"github.com/tomekzakrzewski/go-movierental/types"
 )
 
@@ -15,7 +16,7 @@ func TestPostMovie(t *testing.T) {
 	defer tdb.teardown(t)
 
 	app := fiber.New()
-	movieHandler := NewMovieHandler(tdb.Movie, tdb.Rent)
+	movieHandler := NewMovieHandler(tdb.Store)
 	app.Post("/", movieHandler.HandlePostMovie)
 
 	params := types.CreateMovieParams{
@@ -52,33 +53,25 @@ func TestPostMovie(t *testing.T) {
 func TestGetMovies(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
-
+	fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
 	app := fiber.New()
-	movieHandler := NewMovieHandler(tdb.Movie, tdb.Rent)
-	app.Post("/", movieHandler.HandlePostMovie)
+	movieHandler := NewMovieHandler(tdb.Store)
 	app.Get("/", movieHandler.HandleGetMovies)
-	params := types.CreateMovieParams{
-		Title:  "The Matrix",
-		Length: 120,
-		Year:   1999,
-		Genre:  []string{"Action"},
-	}
 
-	b, _ := json.Marshal(params)
-	req := httptest.NewRequest("POST", "/", bytes.NewReader(b))
+	req := httptest.NewRequest("GET", "/", nil)
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := app.Test(req)
 	if err != nil {
 		t.Error(err)
 	}
-	req = httptest.NewRequest("GET", "/", nil)
-	resp, err = app.Test(req)
-	if err != nil {
-		t.Error(err)
+
+	var respo ResourceResp
+	///var movies []types.Movie
+	if err := json.NewDecoder(resp.Body).Decode(&respo); err != nil {
+		t.Fatal(err)
 	}
-	var movies []types.Movie
-	json.NewDecoder(resp.Body).Decode(&movies)
-	if len(movies) == 0 {
+
+	if respo.Results == 0 {
 		t.Errorf("expecting a movie")
 	}
 }
@@ -88,7 +81,7 @@ func TestGetMovieByID(t *testing.T) {
 	defer tdb.teardown(t)
 
 	app := fiber.New()
-	movieHandler := NewMovieHandler(tdb.Movie, tdb.Rent)
+	movieHandler := NewMovieHandler(tdb.Store)
 	app.Post("/", movieHandler.HandlePostMovie)
 	app.Get("/:id", movieHandler.HandleGetMovieByID)
 	params := types.CreateMovieParams{
@@ -137,7 +130,7 @@ func TestHandleUpdateMovieRating(t *testing.T) {
 	defer tdb.teardown(t)
 
 	app := fiber.New()
-	movieHandler := NewMovieHandler(tdb.Movie, tdb.Rent)
+	movieHandler := NewMovieHandler(tdb.Store)
 	app.Post("/", movieHandler.HandlePostMovie)
 	app.Put("/:id/rating", movieHandler.HandleUpdateMovieRating)
 	app.Get("/:id", movieHandler.HandleGetMovieByID)

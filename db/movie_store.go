@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -15,7 +16,7 @@ const (
 
 type MovieStore interface {
 	InsertMovie(context.Context, *types.Movie) (*types.Movie, error)
-	GetMovies(context.Context) ([]*types.Movie, error)
+	GetMovies(context.Context, map[string]any, *Pagination) ([]*types.Movie, error)
 	GetMovieByID(context.Context, string) (*types.Movie, error)
 	PutMovie(context.Context, string, types.UpdateMovieParams) error
 	DeleteMovie(context.Context, string) error
@@ -43,8 +44,14 @@ func (s *MongoMovieStore) InsertMovie(ctx context.Context, movie *types.Movie) (
 	return movie, nil
 }
 
-func (s *MongoMovieStore) GetMovies(ctx context.Context) ([]*types.Movie, error) {
-	res, err := s.coll.Find(ctx, bson.M{})
+func (s *MongoMovieStore) GetMovies(ctx context.Context, filter map[string]any, pag *Pagination) ([]*types.Movie, error) {
+	opts := options.Find()
+	if pag != nil {
+		opts.SetSkip(int64(pag.Page-1) * int64(pag.Limit))
+		opts.SetLimit(int64(pag.Limit))
+	}
+	//res, err := s.coll.Find(ctx, bson.M{})
+	res, err := s.coll.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}

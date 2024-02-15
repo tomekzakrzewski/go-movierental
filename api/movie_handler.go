@@ -40,12 +40,36 @@ func (h *MovieHandler) HandlePostMovie(c *fiber.Ctx) error {
 	return c.JSON(insertedHotel)
 }
 
+type ResourceResp struct {
+	Results int `json:"results"`
+	Data    any `json:"data"`
+	Page    int `json:"page"`
+}
+
+type MovieQueryParams struct {
+	db.Pagination
+	Rating int
+}
+
 func (h *MovieHandler) HandleGetMovie(c *fiber.Ctx) error {
-	movies, err := h.store.GetMovies(c.Context())
+	var params MovieQueryParams
+	if err := c.QueryParser(&params); err != nil {
+		return ErrBadRequest()
+	}
+	filter := map[string]any{
+		"rating": params.Rating,
+	}
+	movies, err := h.store.GetMovies(c.Context(), filter, &params.Pagination)
 	if err != nil {
 		return err
 	}
-	return c.JSON(movies)
+
+	res := ResourceResp{
+		Results: len(movies),
+		Data:    movies,
+		Page:    params.Page,
+	}
+	return c.JSON(res)
 }
 
 func (h *MovieHandler) HandleUpdateMovie(c *fiber.Ctx) error {

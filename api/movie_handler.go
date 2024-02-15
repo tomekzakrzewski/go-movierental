@@ -51,7 +51,7 @@ type MovieQueryParams struct {
 	Rating int
 }
 
-func (h *MovieHandler) HandleGetMovie(c *fiber.Ctx) error {
+func (h *MovieHandler) HandleGetMovies(c *fiber.Ctx) error {
 	var params MovieQueryParams
 	if err := c.QueryParser(&params); err != nil {
 		return ErrBadRequest()

@@ -46,10 +46,8 @@ func (s *MongoMovieStore) InsertMovie(ctx context.Context, movie *types.Movie) (
 
 func (s *MongoMovieStore) GetMovies(ctx context.Context, filter map[string]any, pag *Pagination) ([]*types.Movie, error) {
 	opts := options.Find()
-	if pag != nil {
-		opts.SetSkip(int64(pag.Page-1) * int64(pag.Limit))
-		opts.SetLimit(int64(pag.Limit))
-	}
+	opts.SetSkip(int64(pag.Page) * int64(pag.Limit))
+	opts.SetLimit(int64(pag.Limit))
 	//res, err := s.coll.Find(ctx, bson.M{})
 	res, err := s.coll.Find(ctx, filter, opts)
 	if err != nil {

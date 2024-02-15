@@ -56,7 +56,7 @@ func TestGetMovies(t *testing.T) {
 	app := fiber.New()
 	movieHandler := NewMovieHandler(tdb.Movie, tdb.Rent)
 	app.Post("/", movieHandler.HandlePostMovie)
-	app.Get("/", movieHandler.HandleGetMovie)
+	app.Get("/", movieHandler.HandleGetMovies)
 	params := types.CreateMovieParams{
 		Title:  "The Matrix",
 		Length: 120,

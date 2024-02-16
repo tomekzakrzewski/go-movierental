@@ -66,7 +66,6 @@ func TestGetMovies(t *testing.T) {
 	}
 
 	var respo ResourceResp
-	///var movies []types.Movie
 	if err := json.NewDecoder(resp.Body).Decode(&respo); err != nil {
 		t.Fatal(err)
 	}
@@ -74,84 +73,53 @@ func TestGetMovies(t *testing.T) {
 	if respo.Results == 0 {
 		t.Errorf("expecting a movie")
 	}
+	if respo.Data == nil {
+		t.Errorf("expecting movies")
+	}
 }
 
 func TestGetMovieByID(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
-
+	movieAdded := fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
 	app := fiber.New()
 	movieHandler := NewMovieHandler(tdb.Store)
-	app.Post("/", movieHandler.HandlePostMovie)
 	app.Get("/:id", movieHandler.HandleGetMovieByID)
-	params := types.CreateMovieParams{
-		Title:  "The Matrix",
-		Length: 120,
-		Year:   1999,
-		Genre:  []string{"Action"},
-	}
-
-	b, _ := json.Marshal(params)
-	req := httptest.NewRequest("POST", "/", bytes.NewReader(b))
-	req.Header.Add("Content-Type", "application/json")
+	req := httptest.NewRequest("GET", "/"+movieAdded.ID.Hex(), nil)
 	resp, err := app.Test(req)
-	if err != nil {
-		t.Error(err)
-	}
-	var movie types.Movie
-	json.NewDecoder(resp.Body).Decode(&movie)
-	req = httptest.NewRequest("GET", "/"+movie.ID.Hex(), nil)
-	resp, err = app.Test(req)
 	if err != nil {
 		t.Error(err)
 	}
 	var movieResp types.Movie
 	json.NewDecoder(resp.Body).Decode(&movieResp)
-	if movieResp.ID != movie.ID {
-		t.Errorf("expected movie id to be %s but got %s", movie.ID, movieResp.ID)
+	if movieResp.ID != movieAdded.ID {
+		t.Errorf("expected movie id to be %s but got %s", movieAdded.ID, movieResp.ID)
 	}
-	if movieResp.Length != movie.Length {
-		t.Errorf("expected movie length to be %d but got %d", movie.Length, movieResp.Length)
+	if movieResp.Length != movieAdded.Length {
+		t.Errorf("expected movie length to be %d but got %d", movieAdded.Length, movieResp.Length)
 	}
-	if movieResp.Year != movie.Year {
-		t.Errorf("expected movie year to be %d but got %d", movie.Year, movieResp.Year)
+	if movieResp.Year != movieAdded.Year {
+		t.Errorf("expected movie year to be %d but got %d", movieAdded.Year, movieResp.Year)
 	}
-	if movieResp.Title != movie.Title {
-		t.Errorf("expected movie title to be %s but got %s", movie.Title, movieResp.Title)
+	if movieResp.Title != movieAdded.Title {
+		t.Errorf("expected movie title to be %s but got %s", movieAdded.Title, movieResp.Title)
 	}
-	if movieResp.Genre[0] != movie.Genre[0] {
-		t.Errorf("expected movie genre to be %s but got %s", movie.Genre, movieResp.Genre)
+	if movieResp.Genre[0] != movieAdded.Genre[0] {
+		t.Errorf("expected movie genre to be %s but got %s", movieAdded.Genre, movieResp.Genre)
 	}
 }
 
-// fix
 func TestHandleUpdateMovieRating(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
 
 	app := fiber.New()
 	movieHandler := NewMovieHandler(tdb.Store)
-	app.Post("/", movieHandler.HandlePostMovie)
-	app.Put("/:id/rating", movieHandler.HandleUpdateMovieRating)
+	app.Put("/:id/rate", movieHandler.HandleUpdateMovieRating)
 	app.Get("/:id", movieHandler.HandleGetMovieByID)
-	params := types.CreateMovieParams{
-		Title:  "The Matrix",
-		Length: 120,
-		Year:   1999,
-		Genre:  []string{"Action"},
-	}
 
-	b, _ := json.Marshal(params)
-	req := httptest.NewRequest("POST", "/", bytes.NewReader(b))
-	req.Header.Add("Content-Type", "application/json")
-	resp, err := app.Test(req)
-	if err != nil {
-		t.Error(err)
-	}
-	var movieResp types.Movie
-	json.NewDecoder(resp.Body).Decode(&movieResp)
+	movieAdded := fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
 
-	movieID := movieResp.ID.Hex()
 	type Rating struct {
 		Rating int `json:"rating"`
 	}
@@ -159,16 +127,17 @@ func TestHandleUpdateMovieRating(t *testing.T) {
 		Rating: 5,
 	}
 
-	b, _ = json.Marshal(rating)
-	req = httptest.NewRequest("PUT", "/"+movieID+"/ratrate", bytes.NewReader(b))
+	b, _ := json.Marshal(rating)
+	req := httptest.NewRequest("PUT", "/"+movieAdded.ID.Hex()+"/rate", bytes.NewReader(b))
 	req.Header.Add("Content-Type", "application/json")
-	resp, err = app.Test(req)
+	resp, err := app.Test(req)
 	if err != nil {
 		t.Error(err)
 	}
-	var movie types.Movie
-	json.NewDecoder(resp.Body).Decode(&movie)
-	req = httptest.NewRequest("GET", "/"+movieID, nil)
+	if resp.StatusCode != 200 {
+		t.Errorf("expected status code 200 but got %d", resp.StatusCode)
+	}
+	req = httptest.NewRequest("GET", "/"+movieAdded.ID.Hex(), nil)
 	resp, err = app.Test(req)
 	if err != nil {
 		t.Error(err)

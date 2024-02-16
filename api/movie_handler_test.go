@@ -109,7 +109,7 @@ func TestGetMovieByID(t *testing.T) {
 	}
 }
 
-func TestHandleUpdateMovieRating(t *testing.T) {
+func TestUpdateMovieRating(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
 
@@ -147,5 +147,22 @@ func TestHandleUpdateMovieRating(t *testing.T) {
 
 	if movieNewRating.Rating != rating.Rating {
 		t.Errorf("expected movie rating to be %d but got %d", rating.Rating, movieNewRating.Rating)
+	}
+}
+
+func TestDeleteMovie(t *testing.T) {
+	tdb := setup(t)
+	defer tdb.teardown(t)
+	movieAdded := fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
+	app := fiber.New()
+	movieHandler := NewMovieHandler(tdb.Store)
+	app.Delete("/:id", movieHandler.HandleDeleteMovie)
+	req := httptest.NewRequest("DELETE", "/"+movieAdded.ID.Hex(), nil)
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Error(err)
+	}
+	if resp.StatusCode != 200 {
+		t.Errorf("expected status code 200 but got %d", resp.StatusCode)
 	}
 }

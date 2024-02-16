@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/tomekzakrzewski/go-movierental/db/fixtures"
 	"github.com/tomekzakrzewski/go-movierental/types"
 )
 
@@ -55,27 +56,13 @@ func TestGetUsers(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
 
+	fixtures.AddUser(tdb.Store, "tomek", "test", false)
+
 	app := fiber.New()
 	userHandler := NewUserHandler(tdb.User)
-	app.Post("/", userHandler.HandlePostUser)
 	app.Get("/", userHandler.HandleGetUsers)
 
-	params := types.CreateUserParams{
-		Username:  "tomek_test",
-		Email:     "tomek@test.com",
-		FirstName: "tomek",
-		LastName:  "test",
-		Password:  "tomektestpass",
-	}
-	b, _ := json.Marshal(params)
-	req := httptest.NewRequest("POST", "/", bytes.NewReader(b))
-	req.Header.Add("Content-Type", "application/json")
-	_, err := app.Test(req)
-	if err != nil {
-		t.Error(err)
-	}
-
-	req = httptest.NewRequest("GET", "/", nil)
+	req := httptest.NewRequest("GET", "/", nil)
 	resp, err := app.Test(req)
 	if err != nil {
 		t.Error(err)

@@ -201,3 +201,43 @@ func TestRentMovie(t *testing.T) {
 		t.Errorf("expected status code 200 but got %d", resp.StatusCode)
 	}
 }
+
+func TestGetRentedMovies(t *testing.T) {
+	tdb := setup(t)
+	defer tdb.teardown(t)
+	var (
+		movieAdded   = fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
+		userAdded    = fixtures.AddUser(tdb.Store, "tomek", "test", false)
+		app          = fiber.New()
+		apiv1        = app.Group("", JWTAuthentication(tdb.User))
+		movieHandler = NewMovieHandler(tdb.Store)
+	)
+	token := CreateTokenFromUser(userAdded)
+	apiv1.Put("/:id/rent", movieHandler.HandleRentMovie)
+	apiv1.Post("/rented", movieHandler.HandleGetRentedMovies)
+	req := httptest.NewRequest("PUT", "/"+movieAdded.ID.Hex()+"/rent", nil)
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Api-Token", token)
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Error(err)
+	}
+	if resp.StatusCode != 200 {
+		t.Errorf("expected status code 200 but got %d", resp.StatusCode)
+	}
+	req = httptest.NewRequest("POST", "/rented", nil)
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Api-Token", token)
+	resp, err = app.Test(req)
+	var rents []types.Rent
+	json.NewDecoder(resp.Body).Decode(&rents)
+	if err != nil {
+		t.Error(err)
+	}
+	if resp.StatusCode != 200 {
+		t.Errorf("expected status code 200 but got %d", resp.StatusCode)
+	}
+	if len(rents) != 1 {
+		t.Errorf("expected 1 rent but got %d", len(rents))
+	}
+}

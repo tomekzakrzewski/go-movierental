@@ -18,7 +18,6 @@ type testDb struct {
 
 func (tdb *testDb) teardown(t *testing.T) {
 	dbname := db.MongoDBName
-	//dbname := os.Getenv(db.MongoDBName)
 	if err := tdb.client.Database(dbname).Drop(context.TODO()); err != nil {
 		t.Fatal(err)
 	}

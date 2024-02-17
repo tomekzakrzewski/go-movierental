@@ -13,8 +13,6 @@ import (
 
 type MovieHandler struct {
 	store *db.Store
-	//store     db.MovieStore
-	//rentStore db.RentStore
 }
 
 func NewMovieHandler(store *db.Store) *MovieHandler {
@@ -61,7 +59,7 @@ func (h *MovieHandler) HandleGetMovies(c *fiber.Ctx) error {
 	}
 	movies, err := h.store.Movie.GetMovies(c.Context(), filter, &params.Pagination)
 	if err != nil {
-		return err
+		return ErrResourceNotFound("Movies")
 	}
 
 	res := ResourceResp{
@@ -77,12 +75,11 @@ func (h *MovieHandler) HandleUpdateMovie(c *fiber.Ctx) error {
 		params  types.UpdateMovieParams
 		movieID = c.Params("id")
 	)
-	// TODO ERROR HANDLING
 	if err := c.BodyParser(&params); err != nil {
-		return err
+		return ErrInvalidID()
 	}
 	if err := h.store.Movie.PutMovie(c.Context(), movieID, params); err != nil {
-		return err
+		return ErrResourceNotFound("Movie")
 	}
 
 	return c.JSON(map[string]string{"updated": movieID})
@@ -115,29 +112,26 @@ func (h *MovieHandler) HandleUpdateMovieRating(c *fiber.Ctx) error {
 		rating  Rating
 	)
 	if err := c.BodyParser(&rating); err != nil {
-		return err
+		return ErrInvalidID()
 	}
 
-	// TODO ERROR HANDLING
 	if rating.Rating < 0 || rating.Rating > 10 {
 		return ErrBadRequest()
 	}
 	if err := h.store.Movie.UpdateRating(c.Context(), movieID, rating.Rating); err != nil {
-		return err
+		return ErrResourceNotFound("Movie")
 	}
 
 	return c.JSON(map[string]string{"updated": movieID})
 }
 
 func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
-	// TODO ERROR HANDLING
 	movieID, err := primitive.ObjectIDFromHex(c.Params("id"))
 	if err != nil {
-		return err
+		return ErrInvalidID()
 	}
 	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {
-		fmt.Println("here")
 		return ErrUnAuthorized()
 	}
 
@@ -159,7 +153,7 @@ func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 	rent := types.NewRentFromParams(params)
 	insertedRent, err := h.store.Rent.InsertRent(c.Context(), rent)
 	if err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	return c.JSON(insertedRent)
 }
@@ -167,12 +161,12 @@ func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 func (h *MovieHandler) HandleGetRentedMovies(c *fiber.Ctx) error {
 	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {
-		return ErrResourceNotFound("rented movies")
+		return ErrBadRequest()
 	}
 
 	movies, err := h.store.Rent.GetRentsByUser(c.Context(), user.ID.Hex())
 	if err != nil {
-		return err
+		return ErrResourceNotFound("rented movies")
 	}
 	return c.JSON(movies)
 }

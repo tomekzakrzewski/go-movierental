@@ -11,7 +11,6 @@ import (
 )
 
 func JWTAuthentication(userStore db.UserStore) fiber.Handler {
-	// TODO ERROR HANDLING
 	return func(c *fiber.Ctx) error {
 		token, ok := c.GetReqHeaders()["Api-Token"]
 		if !ok {
@@ -24,7 +23,6 @@ func JWTAuthentication(userStore db.UserStore) fiber.Handler {
 		}
 		expiresFloat := claims["expires"].(float64)
 		expires := int64(expiresFloat)
-		// Check token expiration
 		if time.Now().Unix() > expires {
 			return ErrUnAuthorized()
 		}
@@ -33,14 +31,12 @@ func JWTAuthentication(userStore db.UserStore) fiber.Handler {
 		if err != nil {
 			return ErrUnAuthorized()
 		}
-		// Set the current authenticated user to the context.
 		c.Context().SetUserValue("user", user)
 		return c.Next()
 	}
 }
 
 func validateToken(tokenStr string) (jwt.MapClaims, error) {
-	// TODO ERROR HANDLING
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			fmt.Println("invalid signing method", token.Header["alg"])

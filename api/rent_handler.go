@@ -18,7 +18,7 @@ func NewRentHandler(store db.RentStore) *RentHandler {
 func (h *RentHandler) HandleGetRents(c *fiber.Ctx) error {
 	rents, err := h.store.GetRents(c.Context())
 	if err != nil {
-		return err
+		return ErrResourceNotFound("Rents")
 	}
 	return c.JSON(rents)
 }

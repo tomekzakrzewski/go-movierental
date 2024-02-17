@@ -24,7 +24,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// init
 	var (
 		store = &db.Store{
 			User:  db.NewUserStore(client),
@@ -43,7 +42,6 @@ func main() {
 		admin        = apiv1.Group("/admin", api.AdminAuth)
 	)
 
-	// USER ONLY RATE, RENT, GET MOVIES, POST AUTH
 	// auth handler
 	auth.Post("/auth", authHandler.HandleAuthenticate)
 
@@ -53,12 +51,14 @@ func main() {
 	apiv1.Post("/movies/:id/rent", movieHandler.HandleRentMovie)
 	apiv1.Post("/movies/rented", movieHandler.HandleGetRentedMovies)
 	apiv1.Get("/movies", movieHandler.HandleGetMovies)
+
 	admin.Post("/movies", movieHandler.HandlePostMovie)
 	admin.Put("/movies/:id", movieHandler.HandleUpdateMovie)
 	admin.Delete("/movies/:id", movieHandler.HandleDeleteMovie)
 
 	// user handlers
 	apiv1.Get("/users/:id", userHandler.HandleGetUser)
+
 	admin.Post("/users", userHandler.HandlePostUser)
 	admin.Get("/users", userHandler.HandleGetUsers)
 	admin.Delete("/users/:id", userHandler.HandleDeleteUser)

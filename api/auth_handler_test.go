@@ -14,15 +14,15 @@ import (
 func TestAuthenticateFailure(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
-	fixtures.AddUser(tdb.Store, "james", "foo", false)
+	userAded := fixtures.AddUser(tdb.Store, "tomek", "tesk", false)
 
 	app := fiber.New()
 	authHandler := NewAuthHandler(tdb.User)
 	app.Post("/auth", authHandler.HandleAuthenticate)
 
 	params := AuthParams{
-		Email:    "james@foo.com",
-		Password: "supersecurepasswordnotcorrect",
+		Email:    userAded.Email,
+		Password: "incorrectpassword",
 	}
 	b, _ := json.Marshal(params)
 	req := httptest.NewRequest("POST", "/auth", bytes.NewReader(b))

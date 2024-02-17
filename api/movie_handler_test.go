@@ -14,9 +14,11 @@ import (
 func TestPostMovie(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
+	var (
+		app          = fiber.New()
+		movieHandler = NewMovieHandler(tdb.Store)
+	)
 
-	app := fiber.New()
-	movieHandler := NewMovieHandler(tdb.Store)
 	app.Post("/", movieHandler.HandlePostMovie)
 
 	params := types.CreateMovieParams{
@@ -53,9 +55,11 @@ func TestPostMovie(t *testing.T) {
 func TestGetMovies(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
-	fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
-	app := fiber.New()
-	movieHandler := NewMovieHandler(tdb.Store)
+	var (
+		_            = fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
+		app          = fiber.New()
+		movieHandler = NewMovieHandler(tdb.Store)
+	)
 	app.Get("/", movieHandler.HandleGetMovies)
 
 	req := httptest.NewRequest("GET", "/", nil)
@@ -81,9 +85,11 @@ func TestGetMovies(t *testing.T) {
 func TestGetMovieByID(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
-	movieAdded := fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
-	app := fiber.New()
-	movieHandler := NewMovieHandler(tdb.Store)
+	var (
+		movieAdded   = fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
+		app          = fiber.New()
+		movieHandler = NewMovieHandler(tdb.Store)
+	)
 	app.Get("/:id", movieHandler.HandleGetMovieByID)
 	req := httptest.NewRequest("GET", "/"+movieAdded.ID.Hex(), nil)
 	resp, err := app.Test(req)
@@ -112,13 +118,14 @@ func TestGetMovieByID(t *testing.T) {
 func TestUpdateMovieRating(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
+	var (
+		app          = fiber.New()
+		movieHandler = NewMovieHandler(tdb.Store)
+		movieAdded   = fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
+	)
 
-	app := fiber.New()
-	movieHandler := NewMovieHandler(tdb.Store)
 	app.Put("/:id/rate", movieHandler.HandleUpdateMovieRating)
 	app.Get("/:id", movieHandler.HandleGetMovieByID)
-
-	movieAdded := fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
 
 	type Rating struct {
 		Rating int `json:"rating"`
@@ -153,9 +160,11 @@ func TestUpdateMovieRating(t *testing.T) {
 func TestDeleteMovie(t *testing.T) {
 	tdb := setup(t)
 	defer tdb.teardown(t)
-	movieAdded := fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
-	app := fiber.New()
-	movieHandler := NewMovieHandler(tdb.Store)
+	var (
+		movieAdded   = fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
+		app          = fiber.New()
+		movieHandler = NewMovieHandler(tdb.Store)
+	)
 	app.Delete("/:id", movieHandler.HandleDeleteMovie)
 	req := httptest.NewRequest("DELETE", "/"+movieAdded.ID.Hex(), nil)
 	resp, err := app.Test(req)

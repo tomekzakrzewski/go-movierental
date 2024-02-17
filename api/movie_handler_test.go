@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http/httptest"
 	"testing"
 
@@ -168,6 +169,31 @@ func TestDeleteMovie(t *testing.T) {
 	app.Delete("/:id", movieHandler.HandleDeleteMovie)
 	req := httptest.NewRequest("DELETE", "/"+movieAdded.ID.Hex(), nil)
 	resp, err := app.Test(req)
+	if err != nil {
+		t.Error(err)
+	}
+	if resp.StatusCode != 200 {
+		t.Errorf("expected status code 200 but got %d", resp.StatusCode)
+	}
+}
+
+func TestRentMovie(t *testing.T) {
+	tdb := setup(t)
+	defer tdb.teardown(t)
+	var (
+		movieAdded   = fixtures.AddMovie(tdb.Store, "The Matrix", []string{"Action"}, 120, 1999)
+		userAdded    = fixtures.AddUser(tdb.Store, "tomek", "test", false)
+		app          = fiber.New()
+		apiv1        = app.Group("", JWTAuthentication(tdb.User))
+		movieHandler = NewMovieHandler(tdb.Store)
+	)
+	token := CreateTokenFromUser(userAdded)
+	apiv1.Put("/:id/rent", movieHandler.HandleRentMovie)
+	req := httptest.NewRequest("PUT", "/"+movieAdded.ID.Hex()+"/rent", nil)
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Api-Token", token)
+	resp, err := app.Test(req)
+	fmt.Println(resp)
 	if err != nil {
 		t.Error(err)
 	}

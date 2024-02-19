@@ -16,7 +16,7 @@ paths:
       summary: Authenticate user
       tags:
       - authentication
-  /movie:
+  /movies:
     get:
       description: Handle getting all movies from database
       produces:
@@ -24,7 +24,7 @@ paths:
       responses: {}
       summary: Get all movies
       tags:
-      - movie
+      - user
     post:
       consumes:
       - application/json
@@ -35,7 +35,7 @@ paths:
       summary: Add movie
       tags:
       - admin
-  /movie/:id:
+  /movies/:id:
     delete:
       description: Handle deleting movie
       produces:
@@ -51,7 +51,7 @@ paths:
       responses: {}
       summary: Get movie by ID
       tags:
-      - movie
+      - user
     put:
       description: Handle updating movie
       produces:
@@ -60,7 +60,7 @@ paths:
       summary: Update movie
       tags:
       - admin
-  /movie/:id/rate:
+  /movies/:id/rate:
     put:
       description: Handle updating movie rating
       produces:
@@ -68,8 +68,8 @@ paths:
       responses: {}
       summary: Update movie movie rating
       tags:
-      - movie
-  /movie/:id/rent:
+      - user
+  /movies/:id/rent:
     post:
       description: Handle renting movie
       produces:
@@ -77,16 +77,16 @@ paths:
       responses: {}
       summary: Rent a movie
       tags:
-      - movie
-  /movie/rented:
+      - user
+  /movies/rented:
     post:
       description: Handle getting movies rented by user
       produces:
       - application/json
       responses: {}
-      summary: Get rented movies by user
+      summary: Get movies rented by user
       tags:
-      - movie
+      - user
   /rents:
     get:
       description: Handle getting all rents made by users

@@ -32,14 +32,14 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/movie": {
+        "/movies": {
             "get": {
                 "description": "Handle getting all movies from database",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "movie"
+                    "user"
                 ],
                 "summary": "Get all movies",
                 "responses": {}
@@ -59,14 +59,14 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/movie/:id": {
+        "/movies/:id": {
             "get": {
                 "description": "Handle getting movie by id",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "movie"
+                    "user"
                 ],
                 "summary": "Get movie by ID",
                 "responses": {}
@@ -94,42 +94,42 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/movie/:id/rate": {
+        "/movies/:id/rate": {
             "put": {
                 "description": "Handle updating movie rating",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "movie"
+                    "user"
                 ],
                 "summary": "Update movie movie rating",
                 "responses": {}
             }
         },
-        "/movie/:id/rent": {
+        "/movies/:id/rent": {
             "post": {
                 "description": "Handle renting movie",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "movie"
+                    "user"
                 ],
                 "summary": "Rent a movie",
                 "responses": {}
             }
         },
-        "/movie/rented": {
+        "/movies/rented": {
             "post": {
                 "description": "Handle getting movies rented by user",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "movie"
+                    "user"
                 ],
-                "summary": "Get rented movies by user",
+                "summary": "Get movies rented by user",
                 "responses": {}
             }
         },

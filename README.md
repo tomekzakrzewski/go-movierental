@@ -13,7 +13,7 @@ API for renting and rating movies.
 
 - Token based(JWT) authentication system
 - Admin and user routes
-- Admin CRUD movies
+- Admin CRUD movies, users management
 - User can rent(24hrs), rate and search movies
 
 ## Endpoints

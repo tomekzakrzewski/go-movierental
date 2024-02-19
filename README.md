@@ -1,6 +1,7 @@
 # Movie rental system
 
 API renting and rating movies. User can browse, rate and rent(for 24 hours) movies.
+All handlers tested.
 
 ## Technologies used
 

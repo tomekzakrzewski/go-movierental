@@ -1,6 +1,17 @@
-TEST HADNLERS
+# Movie rental system
 
-- auth_handler
-- rent_handler
+API for renting and rating movies.
 
-fix all handlers to user store instead of specific store
+## technologies used
+
+    - GO
+    - Fiber
+    - MongoDB
+    - Docker
+
+## Features
+
+- Token based(JWT) authentication system
+- Admin and user routes
+- Admin CRUD movies
+- User can rent(24hrs), rate and search movies

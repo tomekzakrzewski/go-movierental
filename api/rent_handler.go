@@ -15,6 +15,11 @@ func NewRentHandler(store db.RentStore) *RentHandler {
 	}
 }
 
+// @Summary		Get all rents(user id, movie id, from, to)
+// @Description	Handle getting all rents made by users
+// @Tags			admin
+// @Produce		json
+// @Router			/rents [get]
 func (h *RentHandler) HandleGetRents(c *fiber.Ctx) error {
 	rents, err := h.store.GetRents(c.Context())
 	if err != nil {

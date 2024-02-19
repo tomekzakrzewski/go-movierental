@@ -21,6 +21,12 @@ func NewMovieHandler(store *db.Store) *MovieHandler {
 	}
 }
 
+//	@Summary		Add movie
+//	@Description	Handle posting movie to database
+//	@Tags			admin
+//	@Accept			json
+//	@Produce		json
+//	@Router			/movie [post]
 func (h *MovieHandler) HandlePostMovie(c *fiber.Ctx) error {
 	var params types.CreateMovieParams
 	if err := c.BodyParser(&params); err != nil {
@@ -49,6 +55,11 @@ type MovieQueryParams struct {
 	Rating int
 }
 
+//	@Summary		Get all movies
+//	@Description	Handle getting all movies from database
+//	@Tags			movie
+//	@Produce		json
+//	@Router			/movie [get]
 func (h *MovieHandler) HandleGetMovies(c *fiber.Ctx) error {
 	var params MovieQueryParams
 	if err := c.QueryParser(&params); err != nil {
@@ -70,6 +81,11 @@ func (h *MovieHandler) HandleGetMovies(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
+//	@Summary		Update movie
+//	@Description	Handle updating movie
+//	@Tags			admin
+//	@Produce		json
+//	@Router			/movie/:id [put]
 func (h *MovieHandler) HandleUpdateMovie(c *fiber.Ctx) error {
 	var (
 		params  types.UpdateMovieParams
@@ -85,6 +101,11 @@ func (h *MovieHandler) HandleUpdateMovie(c *fiber.Ctx) error {
 	return c.JSON(map[string]string{"updated": movieID})
 }
 
+//	@Summary		Delete movie
+//	@Description	Handle deleting movie
+//	@Tags			admin
+//	@Produce		json
+//	@Router			/movie/:id [delete]
 func (h *MovieHandler) HandleDeleteMovie(c *fiber.Ctx) error {
 	movieID := c.Params("id")
 	if err := h.store.Movie.DeleteMovie(c.Context(), movieID); err != nil {
@@ -93,6 +114,11 @@ func (h *MovieHandler) HandleDeleteMovie(c *fiber.Ctx) error {
 	return c.JSON(map[string]string{"deleted": movieID})
 }
 
+//	@Summary		Get movie by ID
+//	@Description	Handle getting movie by id
+//	@Tags			movie
+//	@Produce		json
+//	@Router			/movie/:id [get]
 func (h *MovieHandler) HandleGetMovieByID(c *fiber.Ctx) error {
 	movieID := c.Params("id")
 	movie, err := h.store.Movie.GetMovieByID(c.Context(), movieID)
@@ -102,6 +128,11 @@ func (h *MovieHandler) HandleGetMovieByID(c *fiber.Ctx) error {
 	return c.JSON(movie)
 }
 
+//	@Summary		Update movie movie rating
+//	@Description	Handle updating movie rating
+//	@Tags			movie
+//	@Produce		json
+//	@Router			/movie/:id/rate [put]
 func (h *MovieHandler) HandleUpdateMovieRating(c *fiber.Ctx) error {
 	type Rating struct {
 		Rating int `json:"rating"`
@@ -125,6 +156,11 @@ func (h *MovieHandler) HandleUpdateMovieRating(c *fiber.Ctx) error {
 	return c.JSON(map[string]string{"updated": movieID})
 }
 
+//	@Summary		Rent a movie
+//	@Description	Handle renting movie
+//	@Tags			movie
+//	@Produce		json
+//	@Router			/movie/:id/rent [post]
 func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 	movieID, err := primitive.ObjectIDFromHex(c.Params("id"))
 	if err != nil {
@@ -158,6 +194,11 @@ func (h *MovieHandler) HandleRentMovie(c *fiber.Ctx) error {
 	return c.JSON(insertedRent)
 }
 
+//	@Summary		Get rented movies by user
+//	@Description	Handle getting movies rented by user
+//	@Tags			movie
+//	@Produce		json
+//	@Router			/movie/rented [post]
 func (h *MovieHandler) HandleGetRentedMovies(c *fiber.Ctx) error {
 	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {

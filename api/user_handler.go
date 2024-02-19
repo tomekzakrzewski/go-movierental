@@ -16,6 +16,11 @@ func NewUserHandler(store db.UserStore) *UserHandler {
 	}
 }
 
+// @Summary		Get users
+// @Description	Handle getting users
+// @Tags			admin
+// @Produce		json
+// @Router			/users [get]
 func (h *UserHandler) HandleGetUsers(c *fiber.Ctx) error {
 	users, err := h.store.GetUsers(c.Context())
 	if err != nil {
@@ -24,6 +29,11 @@ func (h *UserHandler) HandleGetUsers(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
+// @Summary		Post user
+// @Description	Handle posting user
+// @Tags			user
+// @Produce		json
+// @Router			/users [post]
 func (h *UserHandler) HandlePostUser(c *fiber.Ctx) error {
 	var params types.CreateUserParams
 	if err := c.BodyParser(&params); err != nil {
@@ -43,6 +53,11 @@ func (h *UserHandler) HandlePostUser(c *fiber.Ctx) error {
 	return c.JSON(insertedUser)
 }
 
+// @Summary		Get user by id
+// @Description	Handle getting user by id
+// @Tags			admin
+// @Produce		json
+// @Router			/users/:id [get]
 func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
 	var (
 		id = c.Params("id")
@@ -54,6 +69,11 @@ func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
+// @Summary		Delete user by id
+// @Description	Handle deleting user by id
+// @Tags			admin
+// @Produce		json
+// @Router			/users/:id [delete]
 func (h *UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
 	var (
 		id = c.Params("id")

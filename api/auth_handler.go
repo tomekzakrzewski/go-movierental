@@ -46,6 +46,12 @@ func invalidCredentials(c *fiber.Ctx) error {
 	})
 }
 
+//	@Summary		Authenticate user
+//	@Description	Handle authenticating user
+//	@Tags			authentication
+//	@Accept			json
+//	@Produce		json
+//	@Router			/auth [post]
 func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 	var params AuthParams
 	if err := c.BodyParser(&params); err != nil {

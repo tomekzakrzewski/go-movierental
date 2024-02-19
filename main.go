@@ -6,9 +6,11 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
 	"github.com/tomekzakrzewski/go-movierental/api"
 	"github.com/tomekzakrzewski/go-movierental/db"
+	_ "github.com/tomekzakrzewski/go-movierental/docs"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -17,6 +19,10 @@ var config = fiber.Config{
 	ErrorHandler: api.ErrorHandler,
 }
 
+// @title			Movie Rental API
+// @version		1.0
+// @description	API for movie rental
+// @termsOfService	http://swagger.io/terms/
 func main() {
 	mongoEndpoint := os.Getenv("MONGO_DB_URL")
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoEndpoint))
@@ -42,6 +48,9 @@ func main() {
 		admin        = apiv1.Group("/admin", api.AdminAuth)
 	)
 
+	//swagger
+	app.Get("/swagger/*", swagger.HandlerDefault)
+
 	// auth handler
 	auth.Post("/auth", authHandler.HandleAuthenticate)
 
@@ -58,8 +67,8 @@ func main() {
 
 	// user handlers
 	apiv1.Get("/users/:id", userHandler.HandleGetUser)
+	apiv1.Post("/users", userHandler.HandlePostUser)
 
-	admin.Post("/users", userHandler.HandlePostUser)
 	admin.Get("/users", userHandler.HandleGetUsers)
 	admin.Delete("/users/:id", userHandler.HandleDeleteUser)
 

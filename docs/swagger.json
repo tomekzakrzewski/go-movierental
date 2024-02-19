@@ -1,0 +1,190 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for movie rental",
+        "title": "Movie Rental API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {
+        "/auth": {
+            "post": {
+                "description": "Handle authenticating user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Authenticate user",
+                "responses": {}
+            }
+        },
+        "/movie": {
+            "get": {
+                "description": "Handle getting all movies from database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "movie"
+                ],
+                "summary": "Get all movies",
+                "responses": {}
+            },
+            "post": {
+                "description": "Handle posting movie to database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Add movie",
+                "responses": {}
+            }
+        },
+        "/movie/:id": {
+            "get": {
+                "description": "Handle getting movie by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "movie"
+                ],
+                "summary": "Get movie by ID",
+                "responses": {}
+            },
+            "put": {
+                "description": "Handle updating movie",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Update movie",
+                "responses": {}
+            },
+            "delete": {
+                "description": "Handle deleting movie",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Delete movie",
+                "responses": {}
+            }
+        },
+        "/movie/:id/rate": {
+            "put": {
+                "description": "Handle updating movie rating",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "movie"
+                ],
+                "summary": "Update movie movie rating",
+                "responses": {}
+            }
+        },
+        "/movie/:id/rent": {
+            "post": {
+                "description": "Handle renting movie",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "movie"
+                ],
+                "summary": "Rent a movie",
+                "responses": {}
+            }
+        },
+        "/movie/rented": {
+            "post": {
+                "description": "Handle getting movies rented by user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "movie"
+                ],
+                "summary": "Get rented movies by user",
+                "responses": {}
+            }
+        },
+        "/rents": {
+            "get": {
+                "description": "Handle getting all rents made by users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get all rents(user id, movie id, from, to)",
+                "responses": {}
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "Handle getting users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get users",
+                "responses": {}
+            },
+            "post": {
+                "description": "Handle posting user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Post user",
+                "responses": {}
+            }
+        },
+        "/users/:id": {
+            "get": {
+                "description": "Handle getting user by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get user by id",
+                "responses": {}
+            },
+            "delete": {
+                "description": "Handle deleting user by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Delete user by id",
+                "responses": {}
+            }
+        }
+    }
+}

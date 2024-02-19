@@ -1,0 +1,133 @@
+info:
+  contact: {}
+  description: API for movie rental
+  termsOfService: http://swagger.io/terms/
+  title: Movie Rental API
+  version: "1.0"
+paths:
+  /auth:
+    post:
+      consumes:
+      - application/json
+      description: Handle authenticating user
+      produces:
+      - application/json
+      responses: {}
+      summary: Authenticate user
+      tags:
+      - authentication
+  /movie:
+    get:
+      description: Handle getting all movies from database
+      produces:
+      - application/json
+      responses: {}
+      summary: Get all movies
+      tags:
+      - movie
+    post:
+      consumes:
+      - application/json
+      description: Handle posting movie to database
+      produces:
+      - application/json
+      responses: {}
+      summary: Add movie
+      tags:
+      - admin
+  /movie/:id:
+    delete:
+      description: Handle deleting movie
+      produces:
+      - application/json
+      responses: {}
+      summary: Delete movie
+      tags:
+      - admin
+    get:
+      description: Handle getting movie by id
+      produces:
+      - application/json
+      responses: {}
+      summary: Get movie by ID
+      tags:
+      - movie
+    put:
+      description: Handle updating movie
+      produces:
+      - application/json
+      responses: {}
+      summary: Update movie
+      tags:
+      - admin
+  /movie/:id/rate:
+    put:
+      description: Handle updating movie rating
+      produces:
+      - application/json
+      responses: {}
+      summary: Update movie movie rating
+      tags:
+      - movie
+  /movie/:id/rent:
+    post:
+      description: Handle renting movie
+      produces:
+      - application/json
+      responses: {}
+      summary: Rent a movie
+      tags:
+      - movie
+  /movie/rented:
+    post:
+      description: Handle getting movies rented by user
+      produces:
+      - application/json
+      responses: {}
+      summary: Get rented movies by user
+      tags:
+      - movie
+  /rents:
+    get:
+      description: Handle getting all rents made by users
+      produces:
+      - application/json
+      responses: {}
+      summary: Get all rents(user id, movie id, from, to)
+      tags:
+      - admin
+  /users:
+    get:
+      description: Handle getting users
+      produces:
+      - application/json
+      responses: {}
+      summary: Get users
+      tags:
+      - admin
+    post:
+      description: Handle posting user
+      produces:
+      - application/json
+      responses: {}
+      summary: Post user
+      tags:
+      - user
+  /users/:id:
+    delete:
+      description: Handle deleting user by id
+      produces:
+      - application/json
+      responses: {}
+      summary: Delete user by id
+      tags:
+      - admin
+    get:
+      description: Handle getting user by id
+      produces:
+      - application/json
+      responses: {}
+      summary: Get user by id
+      tags:
+      - admin
+swagger: "2.0"

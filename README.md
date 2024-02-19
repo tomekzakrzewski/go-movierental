@@ -2,12 +2,12 @@
 
 API for renting and rating movies.
 
-## technologies used
+## Technologies used
 
-    - GO
-    - Fiber
-    - MongoDB
-    - Docker
+- GO
+- Fiber
+- MongoDB
+- Docker
 
 ## Features
 
